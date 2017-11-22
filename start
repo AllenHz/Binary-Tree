@@ -1,0 +1,161 @@
+#include <malloc.h>
+#include <stdio.h>
+typedef char DataType;  /*应由用户定义DataType的实际类型 */
+/*二叉树的链式存储表示 */
+typedef struct Node
+{
+	DataType data;
+	struct Node *Lchild;
+	struct Node *Rchild;/*左右孩子指针 */
+}BiTNode, *BiTree;	/*结点类型 */
+/*构造二叉树*/
+void CreateBiTree(BiTree *bt)
+{
+	char ch;
+	ch = getchar();
+    if(ch=='.') *bt=NULL;
+    else                               /*读入非空树 */
+	{
+		*bt=(BiTree)malloc(sizeof(BiTNode)); //生成一个新结点
+        (*bt)->data=ch;
+        CreateBiTree(&((*bt)->Lchild)); //生成左子树
+        CreateBiTree(&((*bt)->Rchild)); //生成右子树
+	}
+}
+/*用凹入表表示二叉树*/
+void DisplayBiTree(BiTree T)
+{
+	BiTree stack[100],p;
+	int level[100],top,n,i;
+	if (T!=NULL)
+	{
+		printf("用凹入表表示二叉树:\n");
+		top=1;
+		stack[top]=T;
+		level[top]=3;
+		while(top>0)
+		{
+			p=stack[top];
+			n=level[top];
+			for (i=1;i<=n; i++)
+				printf(" ");
+			printf("%c\n",p->data);
+			top--;
+			if (p->Rchild!=NULL)
+			{
+				top++;
+				stack[top]=p->Rchild;
+				level[top]=n+3;
+			}
+			if (p->Lchild!=NULL)
+			{
+				top++;
+				stack[top]=p->Lchild;
+				level[top]=n+3;
+			}
+		}
+	}
+}
+/*查找二叉树中指定的值*/
+//int back=0;//定义一个全局变量
+int Found(BiTree T,char ch)
+{
+    static int back=0;
+    if(T!=NULL)
+	{
+	    if(T->data==ch)
+        {
+            back=1;
+            return back;
+
+        }
+		else
+		{
+		    Found(T->Lchild,ch);
+            Found(T->Rchild,ch);
+		}
+	}
+	return back;
+}
+/*统计二叉树中叶结点的个数*/
+//int t=0;//定义一个全局变量；
+int  Amount_EndNode(BiTree T)
+{
+    static int t=0;
+    if(T!=NULL)
+	{
+	    if(T->Lchild==NULL&&T->Rchild==NULL)
+        {  t++;  return t;  }
+		else
+		{
+		    Amount_EndNode(T->Lchild);
+            Amount_EndNode(T->Rchild);
+		}
+	}
+    return t;
+}
+/*求一颗二叉树的深度*/
+int TreeDeep(BiTree T)
+{
+    int ldeep , rdeep , deep = 0 ;
+    if (T != NULL)
+    {
+         ldeep = TreeDeep(T->Lchild);
+         rdeep = TreeDeep(T->Rchild);
+        deep = ldeep >= rdeep?ldeep+1:rdeep+1;
+    }
+    return deep;
+}
+/*在二叉树中统计度为2的结点数*/
+int  Amount_TreeNode_2(BiTree T)
+{
+    static int n=0;
+    if(T!=NULL)
+	{
+	    if(T->Lchild!=NULL&&T->Rchild!=NULL)
+        {
+            n++;
+		    Amount_TreeNode_2(T->Lchild);
+            Amount_TreeNode_2(T->Rchild);
+		}
+	}
+    return n;
+}
+/*在二叉树中统计其结点数*/
+int  Sum_TreeNode(BiTree T)
+{
+    static int sum=0;
+    if(T!=NULL)
+    {
+        sum++;
+        Sum_TreeNode(T->Lchild);
+        Sum_TreeNode(T->Rchild);
+    }
+	return sum;
+}
+int  main()
+{
+    BiTree T;
+    char c;
+	printf("请输入先序序列（虚结点用.表示）：\n");
+	CreateBiTree(&T);
+	DisplayBiTree(T);
+	printf("\n");
+	printf("请输入要查询的值：");
+	getchar();
+	scanf("%c",&c);
+	if(Found(T,c))
+        printf("Success!  %c\n",c);
+    else
+        printf("Failed!\n");
+    printf("\n");
+	printf("二叉树中叶结点的个数:%d\n",Amount_EndNode(T));
+	printf("\n");
+	printf("二叉树的深度为：%d\n",TreeDeep(T));
+	printf("\n");
+	printf("二叉树的结点数为：%d\n",Sum_TreeNode(T));
+	printf("\n");
+	printf("二叉树中度为2的结点数为：%d\n",Amount_TreeNode_2(T));
+	printf("\n");
+	return 0;
+}
